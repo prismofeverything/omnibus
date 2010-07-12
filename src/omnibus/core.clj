@@ -1,4 +1,5 @@
 (ns omnibus.core
+  (:use lib.markov)
   (:require [us.omniomnib server]
             [com.zarathustraspeaks server]))
 
