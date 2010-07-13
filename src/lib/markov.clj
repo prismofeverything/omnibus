@@ -24,7 +24,6 @@
 (defn wheel-token 
   [wheel token]
   (let [slice (inc-slice (wheel-slice wheel token))]
-    (pr slice)
     (struct markov-wheel (assoc (wheel :slices) token slice) (+ (wheel :total) 1))))
 
 (defn spin 
@@ -50,7 +49,7 @@
 (defn add-link 
   [chain from-token to-token]
   (let [[from-node to-node] [(add-token (node-for chain from-token) :outgoing to-token) (add-token (node-for chain to-token) :incoming from-token)]]
-    (struct markov-chain (assoc (assoc (chain :nodes) from-token from-node) to-token to-node))))
+    (assoc chain :nodes (assoc (assoc (chain :nodes) from-token from-node) to-token to-node))))
 
 (defn add-terminal
   [chain terminal token]
