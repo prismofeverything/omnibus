@@ -52,10 +52,19 @@
   [node orientation token]
   (assoc node orientation (observe-token (node orientation) token)))
 
+(def direction-map {:outgoing :ending :incoming :beginning})
+
+(defn single-link
+  [chain from-token to-token direction]
+  (assoc-in chain
+            [:nodes from-token]
+            (add-orientation
+             (continuing-node chain from-token (direction-map direction) :false)
+             direction to-token)))
+
 (defn add-link
   [chain from-token to-token]
-  (let [from (assoc-in chain [:nodes from-token] (add-orientation (continuing-node chain from-token :ending :false) :outgoing to-token))]
-    (assoc-in from [:nodes to-token] (add-orientation (continuing-node from to-token :beginning :false) :incoming from-token))))
+  (single-link (single-link chain from-token to-token :outgoing) to-token from-token :incoming))
 
 (defn add-terminal
   [chain terminal token]
@@ -73,15 +82,25 @@
           (add-terminal chain :ending previous)
           (recur (add-link chain previous (first tokens)) (rest tokens) (first tokens)))))))
 
+(defn from-token
+  [chain token direction]
+  (if-let [node ((chain :nodes) token)]
+    (loop [token token
+           path '()
+           node node]
+      (if (= (spin (node (direction-map direction))) :true)
+        path
+        (let [follow (spin (node direction))]
+          (recur follow (cons follow path) ((chain :nodes) follow)))))))
+
 (defn follow-strand
   [chain]
-  (loop [token (spin (chain :beginning))
-         path (list token)
-         node ((chain :nodes) token)]
-    (if (= (spin (node :ending)) :true)
-      (reverse path)
-      (let [follow (spin (node :outgoing))]
-        (recur follow (cons follow path) ((chain :nodes) follow))))))
+  (let [beginning (spin (chain :beginning))]
+    (cons beginning (reverse (from-token chain beginning :outgoing)))))
+
+(defn issue-strand
+  [chain token]
+  (concat (from-token chain token :incoming) [token] (reverse (from-token chain token :outgoing))))
 
 (defn read-source
   [path]
@@ -91,4 +110,8 @@
 (defn generate-statement
   [chain]
   (str-join " " (follow-strand chain)))
+
+(defn generate-response
+  [chain focus]
+  (str-join " " (issue-strand chain focus)))
 
