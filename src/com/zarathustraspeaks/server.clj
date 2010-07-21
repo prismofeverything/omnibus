@@ -6,7 +6,7 @@
         hiccup.core)
   (:require [compojure.route :as route]))
 
-(def zarathustra-chain (read-source "text/zabbrev.txt"))
+(def zarathustra-chain (read-source "text/zarathustra.txt"))
 
 (defn anchorize-strand
   [strand]
