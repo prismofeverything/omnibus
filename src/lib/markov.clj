@@ -8,6 +8,7 @@
 (defstruct markov-chain :nodes :beginning :ending)
 
 (defn empty-wheel [] (struct markov-wheel {} 0))
+(defn empty-node [token] (struct markov-node token (empty-wheel) (empty-wheel) (empty-wheel) (empty-wheel)))
 (defn empty-chain [] (struct markov-chain {} (empty-wheel) (empty-wheel)))
 
 (defn inc-slice 
@@ -41,11 +42,11 @@
 
 (defn node-for
   [chain token]
-  (or ((chain :nodes) token) (struct markov-node token (empty-wheel) (empty-wheel) (empty-wheel) (empty-wheel))))
+  (or ((chain :nodes) token) (empty-node token)))
 
 (defn continuing-node
   [chain token terminal value]
-  (let [node (or ((chain :nodes) token) (struct markov-node token (empty-wheel) (empty-wheel) (empty-wheel) (empty-wheel)))]
+  (let [node (or ((chain :nodes) token) (empty-node token))]
     (assoc node terminal (observe-token (node terminal) value))))
 
 (defn add-orientation
@@ -82,7 +83,7 @@
           (add-terminal chain :ending previous)
           (recur (add-link chain previous (first tokens)) (rest tokens) (first tokens)))))))
 
-(defn from-token
+(defn from-focus
   [chain token direction]
   (if-let [node ((chain :nodes) token)]
     (loop [token token
@@ -96,11 +97,11 @@
 (defn follow-strand
   [chain]
   (let [beginning (spin (chain :beginning))]
-    (cons beginning (reverse (from-token chain beginning :outgoing)))))
+    (cons beginning (reverse (from-focus chain beginning :outgoing)))))
 
 (defn issue-strand
   [chain token]
-  (concat (from-token chain token :incoming) [token] (reverse (from-token chain token :outgoing))))
+  (concat (from-focus chain token :incoming) [token] (reverse (from-focus chain token :outgoing))))
 
 (defn read-source
   [path]
