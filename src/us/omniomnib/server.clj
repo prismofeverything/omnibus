@@ -1,25 +1,20 @@
 (ns us.omniomnib.server
   (:use compojure.core
-        ring.util.servlet
-        ring.adapter.jetty)
-  (:require [compojure.route :as route]))
-
-(defn html-page
-  [title body & opts]
-  (html
-   [:html
-    [:head
-     [:meta {:http-equiv "Content-Type" :content "text/html; charset=utf-8"}]
-     [:title title]
-     [:link {:rel "stylesheet" :type "text/css" :href (opts :css)}]]
-    [:body
-     body]]))
+        lib.html))
 
 (defn omniomnibus-home
-  [omni]
-)  
+  []
+  (html-page
+   "O M N I O M N I B U S"
+   {:css ["omniomnibus"]}
+   [:div#omniomnibus
+    [:div#omnibus "OMNIBUS"]
+    [:div#animal "ANIMAL"]
+    [:div#floating "FLOATING"]
+    [:div#intelligence "INTELLIGENCE"]
+    ]))  
 
 (defroutes omniomnibus
-  (GET "/" [] "OMNIBUS ANIMAL FLOATING INTELLIGENCE")
-  (route/not-found "NONONONNONONONON"))
+  (GET "/" [] (omniomnibus-home))
+  (ANY "*" [] "NONONONNONONONON"))
 

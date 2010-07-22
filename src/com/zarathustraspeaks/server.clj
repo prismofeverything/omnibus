@@ -1,35 +1,35 @@
 (ns com.zarathustraspeaks.server
-  (:use ring.middleware.params
-        compojure.core
+  (:use compojure.core
         clojure.contrib.str-utils
         lib.markov
-        hiccup.core)
-  (:require [compojure.route :as route]))
+        lib.html))
 
-(def zarathustra-chain (read-source "text/zarathustra.txt"))
+(def zarathustra-chain (read-source "text/zabbrev.txt"))
+;; (def zarathustra-chain (read-source "text/zarathustra.txt"))
+
+(defn anchorize-token
+  [token]
+  `[:span [:a {:href ~(format "/%s" token)} ~token] " "])
 
 (defn anchorize-strand
   [strand]
-  (map #(html [:a {:href (format "/%s" %1)} %1]) strand))
+  `[:p ~(map anchorize-token strand)])
 
 (defn zarathustra-home
   [statement]
-  (html
-   [:html
-    [:head
-     [:meta {:http-equiv "Content-Type" :content "text/html; charset=utf-8"}]
-     [:title "Zarathustra SPEAKS"]
-     [:link {:rel "stylesheet" :type "text/css" :href "/css/zarathustra.css"}]]
-    [:body
-     [:div#speaks
-      [:p
-       [:a#title {:href "/"} "ZARATHUSTRA SAYS:"]]]
-     [:div#statement
-      [:p statement]]]]))
+  (html-page
+   "Zarathustra SPEAKS"
+   {:css ["zarathustra"]}
+   [:div#shell
+    [:div#speaks
+     [:p
+      [:a#title {:href "/"} "ZARATHUSTRA SAYS:"]]]
+    [:div#statement
+     statement]]))
 
 (defn chain-output
   [strand]
-  (zarathustra-home (str-join " " (anchorize-strand strand))))
+  (zarathustra-home (anchorize-strand strand)))
 
 (defroutes zarathustraspeaks
   (GET "/" [] (chain-output (follow-strand zarathustra-chain)))

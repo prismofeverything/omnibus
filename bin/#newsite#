@@ -1,0 +1,9 @@
+#!/bin/bash
+
+cp -R basis.com sites/$1.com
+sed -e "s/basis/$1/g" <basis.com/nginx/nginx.conf >sites/$1.com/nginx/nginx.conf
+sed -e "s/basis/$1/g" <basis.com/app/index.html >sites/$1.com/app/index.html
+sed -e "s/basis/$1/g" <basis.com/app/basis.js >sites/$1.com/app/$1.js
+sed -e "s/basis/$1/g" <basis.com/app/basis.css >sites/$1.com/app/$1.css
+mv sites/$1.com/app/basis.css sites/$1.com/app/$1.css
+mv sites/$1.com/app/basis.js sites/$1.com/app/$1.js
