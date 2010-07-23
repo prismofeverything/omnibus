@@ -16,6 +16,7 @@
      [:head
       [:meta {:http-equiv "Content-Type" :content "text/html; charset=utf-8"}]
       [:title ~title]
+      [:link {:rel "icon" :type "image/x-icon" :href "/favicon.ico"}]
       ~@(map js-link (opts :js))
       ~@(map css-link (opts :css))]
      [:body
