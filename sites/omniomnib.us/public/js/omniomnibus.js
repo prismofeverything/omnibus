@@ -3,6 +3,7 @@ var omniomnibus = function() {
         floaters: []
     };
 
+    // initial screen animation
     var floating = linkage.type({
         init: function(id) {
             this.id = id;
@@ -57,6 +58,46 @@ var omniomnibus = function() {
         }
     });
 
+
+    var abcs = "abcdefghijklmnopqrstuvwxyz";
+    var alphabet = function(n) {
+        n = Math.abs(n);
+        var signify = '';
+        var quo = n;
+        var rem = 0;
+
+        while (quo >= 26) {
+            rem = quo % 26;
+            quo = Math.floor(quo / 26);
+
+            signify = signify + abcs[rem];
+        }
+
+        return signify + abcs[quo];
+    };
+    
+    var node = linkage.type({
+        init: function(tag, base, parent) {
+            this.tag = tag;
+            this.base = base;
+
+            this.parent = parent;
+            this.children = [];
+
+            this.topright = [0, 0];
+            this.dim = [0, 0];
+        },
+
+        addChild: function(tag) {
+            var newbase = this.base + alphabet(this.children.length);
+            var child = node(tag, newbase, this);
+            this.children.push(child);
+        }
+    });
+
+
+
+    // floating omnibus
     bus.attach = function() {
         bus.floaters = $.map($('.floating'), function(floater) {
             return floating(floater.id).sync();

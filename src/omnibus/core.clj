@@ -21,4 +21,6 @@
   []
   (map #(.start %) servers))
 
-
+(defn stop
+  []
+  (map #(.stop %) servers))

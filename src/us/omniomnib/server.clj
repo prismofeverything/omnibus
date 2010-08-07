@@ -42,9 +42,9 @@
    [:div#undefined
     [:div#notifier
      (format "%s  " key)
-     [:a#undefined-link {:href "#"} "U N D E F I N E D"]]
+     [:a#undefined-link {:href "#define"} "U N D E F I N E D"]]
     [:div#define 
-     [:form#definition {:method "POST" :action key}
+     [:form#definition {:method "POST" :action (format "/%s" key)}
       [:div [:textarea {:name "body" :rows 11 :columns 311}]]
       [:div#enter [:a.submit {:href "javascript:omniomnibus.submitDefinition()"} "enter"]]]]]))
   
