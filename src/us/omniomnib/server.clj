@@ -24,6 +24,16 @@
   [key]
   (re-split #"/" key))
 
+(defn omniomnibus-ik
+  []
+  (html-page
+   "O M N I O M N I B U S - ik"
+   {:css ["omniomnibus"]
+    :js ["ik"]
+    :script "window.onload = ik.ik;"}
+   [:div#omniomnibus
+    "<canvas id=\"ik\"></canvas>"]))
+
 (defn omniomnibus-defined
   [key body]
   (html-page
@@ -63,6 +73,7 @@
 
 (defroutes omniomnibus
   (GET "/" [] (omniomnibus-home))
+  (GET "/ik" [] (omniomnibus-ik))
   (GET "/*" {{key "*"} :params} (omniomnibus-key key))
   (POST "/*" {{key "*" body "body"} :params} (omniomnibus-define key body))
   (ANY "*" [] "NONONONNONONONON"))

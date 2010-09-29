@@ -49,25 +49,27 @@
     [:div#help_back
      [:a.tiny {:href "/statement/"} "       (back)"]]]))
 
+(defn youdonotexist-javascript
+  [tag]
+  (html-page
+   tag
+   {:css ["youdonotexist"]
+    :js ["enumerable" "sylvester" "linkage" "math" "canvastext" "flux" tag]
+    :script (str "window.onload = " tag ".init;")}
+   [:div#shell
+    [:canvas {:id tag}]]))
+
 (defn youdonotexist-homeostasis
   []
-  (html-page
-   "homeostasis"
-   {:css ["youdonotexist"]
-    :js ["enumerable" "sylvester" "linkage" "math" "canvastext" "flux" "homeostasis"]
-    :script "var world = homeostasis('homeostasis'); window.onload = world.init;"}
-   [:div#shell
-    [:canvas#homeostasis]]))
+  (youdonotexist-javascript "homeostasis"))
+
+(defn youdonotexist-charge
+  []
+  (youdonotexist-javascript "charge"))
 
 (defn youdonotexist-shapemaker
   []
-  (html-page
-   "shapemaker"
-   {:css ["youdonotexist"]
-    :js ["enumerable" "sylvester" "linkage" "math" "canvastext" "flux" "shapemaker"]
-    :script "window.onload = shapemaker.start;"}
-   [:div#shell
-    [:canvas#shapemaker]]))
+  (youdonotexist-javascript "shapemaker"))
 
 (defn youdonotexist-lost
   []
@@ -84,6 +86,7 @@
   (POST "/statement/" [] (youdonotexist-statement-post))
   (GET "/help/" [] (youdonotexist-help))
   (GET "/homeostasis/" [] (youdonotexist-homeostasis))
+  (GET "/charge/" [] (youdonotexist-charge))
   (GET "/shapemaker/" [] (youdonotexist-shapemaker))
   (ANY "*" [] (youdonotexist-lost)))
 
