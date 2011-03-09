@@ -4,8 +4,8 @@
         lib.markov
         lib.html))
 
-(def zarathustra-chain (read-source "text/zabbrev.txt"))
-;; (def zarathustra-chain (read-source "text/zarathustra.txt"))
+;; (def zarathustra-chain (read-source "text/zabbrev.txt"))
+(def zarathustra-chain (read-source "text/zarathustra.txt"))
 
 (defn anchorize-token
   [token]

@@ -1,0 +1,45 @@
+body {
+    font: 90% "Lucida Grande", Arial;
+    color: #eee;
+	
+    background: #5577aa;
+}
+
+a {
+    text-decoration: none;
+    color: #cc5;
+    font-size: 15px;
+}
+
+a.submit {
+    text-decoration: none;
+    background: #aaa;
+    padding: 7px;
+    color: #711;
+    font-size: 14px;
+}
+
+.pushed {
+    padding-left: 33px;
+}
+
+#enter {
+    margin-top: 10px;
+    margin-left: 200px;
+}
+
+#undefined {
+    position: relative;
+    left: 50%;
+    top: 20%;
+}
+
+#define {
+    padding: 12px;
+}
+
+#define textarea {
+    width: 300px;
+    background: #111;
+    color: #eee;
+}

@@ -4,6 +4,8 @@
 
         us.omniomnib.server
         com.youdonotexist.server
+        com.dynamicattractor.server
+        com.spasmosis.server
         com.zarathustraspeaks.server))
 
 (defn server-at
@@ -13,6 +15,8 @@
 (def server-specs
      [[(var omniomnibus) 5544]
       [(var youdonotexist) 11111]
+      [(var spasmosis) 8483]
+      [(var dynamicattractor) 22111]
       [(var zarathustraspeaks) 8188]])
 
 (def servers (map #(apply server-at %) server-specs))
