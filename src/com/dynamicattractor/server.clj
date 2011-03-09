@@ -11,7 +11,7 @@
     :js ["linkage" "jquery" "dynamicattractor"]
     :script "$(document).ready(function() {dynamicattractor.attach()})"}
    [:div#dynamicattractor
-    [:h1.title "Dynamic Attractor"]
+    [:h1.title "! Dynamic Attractor !"]
     [:h2 ": A home for systems research and interdisciplinary collaboration :"]
     ]))
 
