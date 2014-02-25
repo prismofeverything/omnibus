@@ -1,30 +1,52 @@
 (ns omnibus.core
-  (:use ring.util.servlet
-        ring.adapter.jetty
-
-        us.omniomnib.server
-        com.youdonotexist.server
-        com.dynamicattractor.server
-        com.spasmosis.server
-        com.zarathustraspeaks.server))
+  (:use [ring.middleware.resource :only (wrap-resource)]
+        [ring.middleware.reload :only (wrap-reload)]
+        [ring.middleware.nested-params :only (wrap-nested-params)]
+        [ring.middleware.keyword-params :only (wrap-keyword-params)]
+        [ring.middleware.json :only (wrap-json-params)]
+        [ring.middleware.multipart-params :only (wrap-multipart-params)]
+        [ring.middleware.params :only (wrap-params)])
+  (:require [org.httpkit.server :as httpkit] 
+            [us.omniomnib.server :as omni]
+            [com.youdonotexist.server :as you]
+            [com.dynamicattractor.server :as dyn]
+            [com.spasmosis.server :as spax]
+            [com.zarathustraspeaks.server :as zar]))
 
 (defn server-at
-     [routes port]
-     (run-jetty routes {:port port :join? false}))
+  [app domain port]
+  (println (format "starting %s at %s" app port))
+  (httpkit/run-server 
+   (-> (fn [request] 
+         (let [response ((app) request)]
+           {:status 200 :body response}))
+       (wrap-resource (str domain "/public"))
+       (wrap-reload)
+       (wrap-json-params)
+       (wrap-multipart-params)
+       (wrap-keyword-params)
+       (wrap-nested-params)
+       (wrap-params))
+   {:port port}))
 
 (def server-specs
-     [[(var omniomnibus) 5544]
-      [(var youdonotexist) 11111]
-      [(var spasmosis) 8483]
-      [(var dynamicattractor) 22111]
-      [(var zarathustraspeaks) 8188]])
+  [[omni/omniomnibus "omniomnib.us" 5544]
+   [you/youdonotexist "youdonotexist.com" 11111]
+   [spax/spasmosis "spasmosis.com" 8483]
+   [dyn/dynamicattractor "dynamicattractor.com" 22111]
+   [zar/zarathustraspeaks "zarathustraspeaks.com" 8188]])
 
-(def servers (map #(apply server-at %) server-specs))
+(def servers (atom {}))
 
 (defn go
   []
-  (map #(.start %) servers))
+  (let [serve (map #(apply server-at %) server-specs)]
+    (swap! servers (constantly serve))))
 
 (defn stop
   []
   (map #(.stop %) servers))
+
+(defn -main
+  [& args]
+  (doall (go)))

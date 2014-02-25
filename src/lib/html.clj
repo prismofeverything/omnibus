@@ -1,5 +1,5 @@
 (ns lib.html
-  (use hiccup.core))
+  (:require [hiccup.core :as hiccup]))
 
 (defn js-link
   [link]
@@ -11,7 +11,7 @@
 
 (defmacro html-page
   [title opts & body]
-  `(html
+  `(hiccup/html
     [:html
      [:head
       [:meta {:http-equiv "Content-Type" :content "text/html; charset=utf-8"}]

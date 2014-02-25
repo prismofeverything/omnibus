@@ -1,6 +1,5 @@
 (ns lib.markov
-  (:use clojure.contrib.str-utils
-        clojure.contrib.duck-streams))
+  (:require [clojure.string :as string]))
 
 (defstruct markov-wheel :slices :total)
 (defstruct markov-slice :token :weight)
@@ -57,11 +56,12 @@
 
 (defn single-link
   [chain from-token to-token direction]
-  (assoc-in chain
-            [:nodes from-token]
-            (add-orientation
-             (continuing-node chain from-token (direction-map direction) :false)
-             direction to-token)))
+  (assoc-in
+   chain
+   [:nodes from-token]
+   (add-orientation
+    (continuing-node chain from-token (direction-map direction) :false)
+    direction to-token)))
 
 (defn add-link
   [chain from-token to-token]
@@ -105,14 +105,14 @@
 
 (defn read-source
   [path]
-  (let [source (re-split #"  " (re-gsub #": " ":" (str-join " " (read-lines path))))]
-    (reduce add-token-stream (empty-chain) (map #(re-split #" " %) source))))
+  (let [source (string/split (string/replace (string/join " " (string/split (slurp path) #"\n")) #": " ":") #"  ")]
+    (reduce add-token-stream (empty-chain) (map #(string/split % #" ") source))))
 
 (defn generate-statement
   [chain]
-  (str-join " " (follow-strand chain)))
+  (string/join " " (follow-strand chain)))
 
 (defn generate-response
   [chain focus]
-  (str-join " " (issue-strand chain focus)))
+  (string/join " " (issue-strand chain focus)))
 

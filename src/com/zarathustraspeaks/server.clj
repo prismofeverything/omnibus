@@ -1,11 +1,10 @@
 (ns com.zarathustraspeaks.server
-  (:use compojure.core
-        clojure.contrib.str-utils
-        lib.markov
-        lib.html))
+  (:require [polaris.core :as polaris] 
+            [lib.html :as html]
+            [lib.markov :as markov]))
 
-;; (def zarathustra-chain (read-source "text/zabbrev.txt"))
-(def zarathustra-chain (read-source "text/zarathustra.txt"))
+(def zarathustra-chain 
+  (markov/read-source "text/zarathustra.txt"))
 
 (defn anchorize-token
   [token]
@@ -15,9 +14,9 @@
   [strand]
   `[:p ~(map anchorize-token strand)])
 
-(defn zarathustra-home
+(defn zarathustra-page
   [statement]
-  (html-page
+  (html/html-page
    "Zarathustra SPEAKS"
    {:css ["zarathustra"]}
    [:div#shell
@@ -27,13 +26,20 @@
     [:div#statement
      statement]]))
 
-(defn chain-output
-  [strand]
-  (zarathustra-home (anchorize-strand strand)))
+(defn zarathustra-home
+  [request]
+  (zarathustra-page (anchorize-strand (markov/follow-strand zarathustra-chain))))
 
-(defroutes zarathustraspeaks
-  (GET "/" [] (chain-output (follow-strand zarathustra-chain)))
-  (GET "/*" {{spoke "*"} :params} (chain-output (issue-strand zarathustra-chain spoke)))
-  (ANY "*" [] "NOT FOUND"))
+(defn zarathustra-key
+  [request]
+  (zarathustra-page (anchorize-strand (markov/issue-strand zarathustra-chain (-> request :params :spoke)))))
 
+(def zarathustraspeaks-routes
+  [["/" :home zarathustra-home]
+   ["/:spoke" :spoke zarathustra-key]])
 
+(defn zarathustraspeaks
+  []
+  (-> zarathustraspeaks-routes
+      (polaris/build-routes)
+      (polaris/router)))

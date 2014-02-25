@@ -1,11 +1,10 @@
 (ns com.dynamicattractor.server
-  (:use clojure.contrib.str-utils
-        compojure.core
-        lib.html))
+  (:require [polaris.core :as polaris]
+            [lib.html :as html]))
 
 (defn dynamicattractor-home
-  []
-  (html-page
+  [request]
+  (html/html-page
    "dynamic attractor home"
    {:css ["dynamicattractor"]
     :js ["linkage" "jquery" "dynamicattractor"]
@@ -15,7 +14,11 @@
     [:h2 ": A home for systems research and interdisciplinary collaboration :"]
     ]))
 
-(defroutes dynamicattractor
-  (GET "/" [] (dynamicattractor-home))
-  (ANY "*" [] (dynamicattractor-home)))
+(def dynamicattractor-routes
+  [["/" :home dynamicattractor-home]])
 
+(defn dynamicattractor
+  []
+  (-> dynamicattractor-routes
+      polaris/build-routes
+      polaris/router))

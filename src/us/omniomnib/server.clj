@@ -1,13 +1,13 @@
 (ns us.omniomnib.server
-  (:use clojure.contrib.str-utils
-        compojure.core
-        lib.html))
+  (:require [clojure.string :as string] 
+            [polaris.core :as polaris]
+            [lib.html :as html]))
 
-(def universe {})
+(def universe (atom {}))
 
 (defn omniomnibus-home
-  []
-  (html-page
+  [request]
+  (html/html-page
    "O M N I O M N I B U S"
    {:css ["omniomnibus"]
     :js ["linkage" "jquery" "omniomnibus"]
@@ -17,16 +17,15 @@
      [:a {:href "/omnibus"} "OMNIBUS"]]
     [:div#animal.floating "ANIMAL"]
     [:div#floating.floating "FLOATING"]
-    [:div#intelligence.floating "INTELLIGENCE"]
-    ]))
+    [:div#intelligence.floating "INTELLIGENCE"]]))
 
 (defn parse-key
   [key]
-  (re-split #"/" key))
+  (string/split key #"/"))
 
 (defn omniomnibus-ik
-  []
-  (html-page
+  [request]
+  (html/html-page
    "O M N I O M N I B U S - ik"
    {:css ["omniomnibus"]
     :js ["ik"]
@@ -36,7 +35,7 @@
 
 (defn omniomnibus-defined
   [key body]
-  (html-page
+  (html/html-page
    (format "O M N I O M N I B U S - %s" key)
    {:css ["omniomnibus"]
     :js ["linkage" "jquery" "omniomnibus"]}
@@ -44,7 +43,7 @@
 
 (defn omniomnibus-undefined
   [key]
-  (html-page
+  (html/html-page
    (format "O M N I O M N I B U S - %s" key)
    {:css ["omniomnibus"]
     :js ["linkage" "jquery" "omniomnibus"]
@@ -59,22 +58,30 @@
       [:div#enter [:a.submit {:href "javascript:omniomnibus.submitDefinition()"} "enter"]]]]]))
   
 (defn omniomnibus-key
-  [key]
-  (let [pad (get-in universe (parse-key key))]
+  [request]
+  (let [key (-> request :params :key) 
+        pad (get-in @universe (parse-key key))]
     (if (empty? pad)
       (omniomnibus-undefined key)
       (omniomnibus-defined key pad))))
 
 (defn omniomnibus-define
-  [key body]
-  (prn "%s %s" key body)
-  (def universe (assoc-in universe (parse-key key) body))
-  (omniomnibus-defined key body))
+  [request]
+  (let [key (-> request :params :key)
+        body (-> request :params :body)]
+    (println request)
+    (println "creating %s %s" key body)
+    (swap! universe assoc-in (parse-key key) body)
+    (omniomnibus-defined key body)))
 
-(defroutes omniomnibus
-  (GET "/" [] (omniomnibus-home))
-  (GET "/ik" [] (omniomnibus-ik))
-  (GET "/*" {{key "*"} :params} (omniomnibus-key key))
-  (POST "/*" {{key "*" body "body"} :params} (omniomnibus-define key body))
-  (ANY "*" [] "NONONONNONONONON"))
+(def omniomnibus-routes
+  [["/" :home omniomnibus-home]
+   ["/ik" :ik omniomnibus-ik]
+   ["/:key" :key {:GET omniomnibus-key 
+                  :POST omniomnibus-define}]])
 
+(defn omniomnibus
+  []
+  (-> omniomnibus-routes
+      (polaris/build-routes)
+      (polaris/router)))

@@ -1,12 +1,10 @@
 (ns com.youdonotexist.server
-  (:use compojure.core
-        ring.adapter.jetty
-        lib.html)
-  (:require [compojure.route :as route]))
+  (:require [lib.html :as html]
+            [polaris.core :as polaris]))
 
 (defn youdonotexist-home
-  []
-  (html-page
+  [request]
+  (html/html-page
    "You Do Not Exist"
    {:css ["youdonotexist"]
     :js ["enumerable" "vector" "evader" "youdonotexist"]
@@ -14,8 +12,8 @@
    [:a#youdonotexist {:href "#"} "You"]))
 
 (defn youdonotexist-statement
-  []
-  (html-page
+  [request]
+  (html/html-page
    "You Do Not Exist"
    {:css ["youdonotexist"]
     :js ["youdonotexist"]}
@@ -27,20 +25,19 @@
     [:div#statement
      [:form#statement_form {:method "post" :action "/statement/"}
       [:input#statement_input {:type "text" :name "statement"}]
-      [:input#accept {:type "image" :src "/img/monolith.png"}]]]]
-   ))
+      [:input#accept {:type "image" :src "/img/monolith.png"}]]]]))
 
 (defn youdonotexist-statement-post
-  []
-  (html-page
+  [request]
+  (html/html-page
    "You Do Not Exist"
    {:css ["youdonotexist"]
     :js ["youdonotexist"]}
    [:a "YOU ARE A THING"]))
 
 (defn youdonotexist-help
-  []
-  (html-page
+  [request]
+  (html/html-page
    "You Do Not Exist"
    {:css ["youdonotexist"]
     :js ["youdonotexist"]}
@@ -51,7 +48,7 @@
 
 (defn youdonotexist-javascript
   [tag]
-  (html-page
+  (html/html-page
    tag
    {:css ["youdonotexist"]
     :js ["enumerable" "sylvester" "linkage" "math" "canvastext" "flux" tag]
@@ -60,33 +57,36 @@
     [:canvas {:id tag}]]))
 
 (defn youdonotexist-homeostasis
-  []
+  [request]
   (youdonotexist-javascript "homeostasis"))
 
 (defn youdonotexist-charge
-  []
+  [request]
   (youdonotexist-javascript "charge"))
 
 (defn youdonotexist-shapemaker
-  []
+  [request]
   (youdonotexist-javascript "shapemaker"))
 
 (defn youdonotexist-lost
-  []
-  (html-page
+  [request]
+  (html/html-page
    "You Exist Less Than Even Before"
    {:css ["youdonotexist"]
     :js ["enumerable" "vector" "evader" "youdonotexist"]
     :script "  var you = evader({element: 'youdonotexist', over: statementOver, out: statementOut});"}
    [:a#youdonotexist {:href "#"} "NONONONON"]))
 
-(defroutes youdonotexist
-  (GET "/" [] (youdonotexist-home))
-  (GET "/statement/" [] (youdonotexist-statement))
-  (POST "/statement/" [] (youdonotexist-statement-post))
-  (GET "/help/" [] (youdonotexist-help))
-  (GET "/homeostasis/" [] (youdonotexist-homeostasis))
-  (GET "/charge/" [] (youdonotexist-charge))
-  (GET "/shapemaker/" [] (youdonotexist-shapemaker))
-  (ANY "*" [] (youdonotexist-lost)))
+(def youdonotexist-routes
+  [["/" :home youdonotexist-home]
+   ["/statement/" :statement {:GET youdonotexist-statement :POST youdonotexist-statement-post}]
+   ["/help/" :help youdonotexist-help]
+   ["/homeostasis/" :homeostasis youdonotexist-homeostasis]
+   ["/charge/" :charge youdonotexist-charge]
+   ["/shapemaker/" :shapemaker youdonotexist-shapemaker]])
 
+(defn youdonotexist
+  []
+  (-> youdonotexist-routes
+      (polaris/build-routes)
+      (polaris/router)))
