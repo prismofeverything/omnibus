@@ -11,7 +11,8 @@
             [com.youdonotexist.server :as you]
             [com.dynamicattractor.server :as dyn]
             [com.spasmosis.server :as spax]
-            [com.zarathustraspeaks.server :as zar]))
+            [com.zarathustraspeaks.server :as zar]
+            [elephantlaboratories.server :as eleph]))
 
 (defn server-at
   [app domain port]
@@ -40,8 +41,9 @@
 
 (defn go
   []
-  (let [serve (map #(apply server-at %) server-specs)]
-    (swap! servers (constantly serve))))
+  (let [serve (map #(apply server-at %) server-specs)
+        elephant (httpkit/run-server eleph/app {:port 11221})]
+    (swap! servers (constantly (cons elephant serve)))))
 
 (defn stop
   []
